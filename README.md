@@ -9,5 +9,5 @@ Stack :
 - API Gateway
 - S3
 - DynamoDB
--Jest
+- Jest
 
