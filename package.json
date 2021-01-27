@@ -1,0 +1,25 @@
+{
+  "name": "MyGED",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "git@github.com:adrienBdr/MyGED.git",
+  "author": "Adrien Binder <adrien.binder@epitech.eu>",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.3.0",
+    "@aws-sdk/client-s3": "^3.3.0",
+    "@aws-sdk/s3-request-presigner": "^3.3.0",
+    "@aws-sdk/util-create-request": "^3.3.0",
+    "@aws-sdk/util-format-url": "^3.3.0",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.9.2",
+    "node-fetch": "^2.6.1",
+    "serverless-http": "^2.7.0"
+  },
+  "devDependencies": {
+    "serverless-dynamodb-local": "^0.2.39",
+    "serverless-offline": "^6.8.0",
+    "serverless-s3-local": "^0.6.7"
+  }
+}
