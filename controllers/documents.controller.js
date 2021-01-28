@@ -1,4 +1,4 @@
-const {DynamoDBClient} = require('@aws-sdk/client-dynamodb');
+const {DynamoDB, ScanCommand, GetItemCommand} = require('@aws-sdk/client-dynamodb');
 const {
   S3Client,
   PutObjectCommand,
@@ -7,7 +7,6 @@ const {
 const {S3RequestPresigner} = require('@aws-sdk/s3-request-presigner');
 const {createRequest} = require('@aws-sdk/util-create-request');
 const {formatUrl} = require('@aws-sdk/util-format-url');
-const fetch = require('node-fetch');
 const utils = require('../utils');
 
 const IS_OFFLINE = process.env.IS_OFFLINE;
@@ -16,7 +15,7 @@ const S3_BUCKET = process.env.S3_BUCKET;
 
 let dynamoDb, s3client;
 if (IS_OFFLINE === 'true') {
-  dynamoDb = new DynamoDBClient({
+  dynamoDb = new DynamoDB({
     region: 'localhost',
     endpoint: 'http://localhost:8000'
   })
@@ -27,7 +26,7 @@ if (IS_OFFLINE === 'true') {
   console.log(dynamoDb);
   console.log(s3client);
 } else {
-  dynamoDb = new DynamoDBClient({});
+  dynamoDb = new DynamoDB({});
   s3client = new S3Client({});
 }
 
@@ -72,7 +71,17 @@ module.exports = {
   },
 
   list: async function (req, res) {
-    return utils.resSuccess(res, 'Listing all documents');
+    const params = {
+      TableName: DOCUMENTS_TABLE,
+    };
+
+    try {
+      const data = await dynamoDb.send(new ScanCommand(params));
+      return utils.resSuccess(res, data.Items);
+    } catch (err) {
+      console.log(err);
+      return utils.resError(res, 'Error while fetching database');
+    }
   },
 
   download: async function (req, res) {
@@ -80,13 +89,21 @@ module.exports = {
       uuid
     } = req.query;
 
-    const clientParams = {
-      Bucket: S3_BUCKET,
-      Key: uuid,
+    const dbParams = {
+      TableName: DOCUMENTS_TABLE, //TABLE_NAME
+      Key: {
+        uuid: { S: uuid },
+      },
     };
 
     try {
-      const request = await createRequest(s3client, new GetObjectCommand(clientParams));
+      const data = await dynamoDb.send(new GetItemCommand(dbParams));
+      const s3clientParams = {
+        Bucket: S3_BUCKET,
+        Key: data.Item.name.S,
+      };
+      console.log(data);
+      const request = await createRequest(s3client, new GetObjectCommand(s3clientParams));
       const signedUrl = formatUrl(
         await signedRequest.presign(request, {
           expiresIn: 60 * 15,

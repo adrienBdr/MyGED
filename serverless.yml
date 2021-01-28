@@ -43,14 +43,20 @@ provider:
 
 functions:
   getDocuments:
-    handler: app.handler
+    handler: handlers.app
     events:
       - http: 'GET /documents'
       - http: 'GET /documents/{proxy+}'
   createDocument:
-    handler: app.handler
+    handler: handlers.app
     events:
       - http: 'POST /documents'
+  postprocess:
+    handler: handlers.postprocess
+    events:
+      - s3:
+          bucket: ${self:custom.bucketName}
+          event: s3:ObjectCreated:*
 
 resources:
   Resources:
@@ -59,17 +65,13 @@ resources:
       Properties:
         AttributeDefinitions:
           -
-            AttributeName: id
+            AttributeName: uuid
             AttributeType: S
         KeySchema:
           -
-            AttributeName: id
+            AttributeName: uuid
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.tableName}
-    DocumentsS3Bucket:
-      Type: 'AWS::S3::Bucket'
-      Properties:
-        BucketName: ${self:custom.bucketName}

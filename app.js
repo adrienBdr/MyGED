@@ -10,4 +10,4 @@ routes.forEach(route => {
   app.use(route.name, route.router);
 });
 
-module.exports.handler = serverless(app);
+module.exports = serverless(app);
