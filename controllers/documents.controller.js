@@ -90,7 +90,7 @@ module.exports = {
     } = req.query;
 
     const dbParams = {
-      TableName: DOCUMENTS_TABLE, //TABLE_NAME
+      TableName: DOCUMENTS_TABLE,
       Key: {
         uuid: { S: uuid },
       },
