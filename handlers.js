@@ -1,11 +1,17 @@
 'use strict'
 const app = require('./app');
-const utils = require('./utils');
+const Document = require('./models/document');
 
 module.exports.app = app;
 
 module.exports.postprocess = async (event) => {
   for (const record of event.Records) {
-    await utils.addDocInDb(record.s3.object.key);
+    const document = new Document({name: record.s3.object.key});
+
+    try {
+      await document.addInDb();
+    } catch (e) {
+      console.log(e);
+    }
   }
 };
