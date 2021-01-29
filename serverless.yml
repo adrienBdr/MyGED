@@ -1,0 +1,78 @@
+service: MyGED
+frameworkVersion: '2'
+
+custom:
+  tableName: 'documents-table-${self:provider.stage}'
+  bucketName: 'documents-s3bucket-${self:provider.stage}'
+  dynamodb:
+    stages:
+      - dev
+    start:
+      migrate: true
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-s3-local
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": [ "DocumentsDynamoDBTable", "Arn" ] }
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource:
+        - { "Fn::Join": ["", ["arn:aws:s3:::${self:custom.bucketName}", "/*" ] ] }
+  environment:
+    DOCUMENTS_TABLE: ${self:custom.tableName}
+    S3_BUCKET: ${self:custom.bucketName}
+
+functions:
+  getDocuments:
+    handler: handlers.app
+    events:
+      - http: 'GET /documents'
+      - http: 'GET /documents/{proxy+}'
+  createDocument:
+    handler: handlers.app
+    events:
+      - http: 'POST /documents'
+  postprocess:
+    handler: handlers.postprocess
+    events:
+      - s3:
+          bucket: ${self:custom.bucketName}
+          event: s3:ObjectCreated:*
+
+resources:
+  Resources:
+    DocumentsDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: uuid
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: uuid
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.tableName}
