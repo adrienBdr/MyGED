@@ -5,7 +5,6 @@ const Document = require('./models/document');
 module.exports.app = app;
 
 module.exports.postprocess = async (event) => {
-  console.log(event);
   for (const record of event.Records) {
     const document = new Document({name: record.s3.object.key});
 
