@@ -105,3 +105,6 @@ buckets/
 
 # TernJS port file
 .tern-port
+
+# webstorm folder
+.idea
