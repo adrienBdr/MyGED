@@ -27,9 +27,9 @@ module.exports = {
 
   list: async function (req, res) {
     try {
-      return utils.resSuccess(res, await new DocumentList().getAll());
+      const items = await new DocumentList().getAll();
+      return utils.resSuccess(res, items);
     } catch (err) {
-      console.log(err);
       return utils.resError(res, 'Error while fetching database');
     }
   },
@@ -43,7 +43,6 @@ module.exports = {
     try {
       return utils.resSuccess(res, {fileUrl: await document.getDownloadLink()});
     } catch (e) {
-      console.log(e);
       return utils.resError(res, 'Error creating presigned URL');
     }
   }

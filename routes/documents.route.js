@@ -1,4 +1,4 @@
-const express = require('express')
+const express = require('express');
 const validator = require('../controllers/documents.validator');
 const controller = require('../controllers/documents.controller');
 

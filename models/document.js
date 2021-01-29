@@ -24,7 +24,7 @@ module.exports =
 
     initDb() {
       if (typeof this.dynamoDb === 'undefined') {
-        if (IS_OFFLINE === 'true') {
+        if (IS_OFFLINE === 'true' || process.env.NODE_ENV === 'test') {
           this.dynamoDb = new DynamoDB({
             region: 'localhost',
             endpoint: 'http://localhost:8000'
@@ -37,7 +37,7 @@ module.exports =
 
     initS3Bucket() {
       if (typeof this.s3client === 'undefined') {
-        if (IS_OFFLINE === 'true') {
+        if (IS_OFFLINE === 'true' || process.env.NODE_ENV === 'test') {
           this.s3client = new S3Client({
             region: 'localhost',
             endpoint: 'http://localhost:4569'
