@@ -11,7 +11,7 @@ Stack :
 - DynamoDB
 - Jest
 
-All the uploaded document are stocked in S3 and referenced by DynamoDB.
+All the uploaded documents are stocked in S3 and referenced by DynamoDB.
 
 Endpoints:
 - GET /documents List documents
